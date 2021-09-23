@@ -1,0 +1,20 @@
+#!/bin/bash
+
+input=$(echo $1 | tr -c "0-9 " ":")
+
+year=$(echo "$input" | cut -d ":" -f1)
+month=$(echo "$input" | cut -d ":" -f2)
+day=$(echo "$input" | cut -d ":" -f3)
+hour=$(echo "$input" | cut -d ":" -f4)
+minute=$(echo "$input" | cut -d ":" -f5)
+second=$(echo "$input" | cut -d ":" -f6)
+
+[ -z $day ] && day="01"
+[ -z $hour ] && hour="12"
+[ -z $minute ] && minute="00"
+[ -z $second ] && second="00"
+
+timestamp="$year:$month:$day $hour:$minute:$second"
+echo "Setting datetimeoriginal to '$timestamp'."
+shift
+exiftool -overwrite_original -datetimeoriginal="$timestamp" "$@"

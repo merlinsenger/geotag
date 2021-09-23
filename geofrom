@@ -1,0 +1,6 @@
+#!/bin/bash
+
+from="$1"
+to="$2"
+
+exiftool -overwrite_original -tagsfromfile "$from" -gpslatitude -gpslatituderef -gpslongitude -gpslongituderef "$to"

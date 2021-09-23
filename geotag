@@ -1,0 +1,42 @@
+#!/bin/bash
+
+a=$(echo "$1" | tr " " "+")
+
+uri="https://nominatim.openstreetmap.org/search?q=$a&format=geojson"
+path0=".features[0].geometry.coordinates[0]"
+path1=".features[0].geometry.coordinates[1]"
+
+echo "Searching coordinates for address '$1'."
+echo "Getting $uri"
+json=$(curl -s "$uri")
+lat=$(echo $json | jq -r "$path1")
+lon=$(echo $json | jq -r "$path0")
+
+echo "Found the place at latitude: $lat longitude: $lon."
+
+uri="https://nominatim.openstreetmap.org/reverse.php?format=geojson&lat=$lat&lon=$lon&zoom=16"
+json=$(curl -s "$uri")
+name=$(echo $json | jq -r ".features[0].properties.display_name")
+echo "Location name lookup: $name"
+
+latref="N"
+lonref="E"
+
+echo "$lat" | grep -q "-" && latref="S"
+echo "$lon" | grep -q "-" && lonref="W"
+
+latabs=$(echo $lat | sed 's/-//')
+lonabs=$(echo $lon | sed 's/-//')
+
+echo "Geotagging to Latitude $latabs $latref and longitude $lonabs $lonref"
+
+shift
+file="$@"
+
+if [ -z "$file" ]
+then chromium-browser "https://opentopomap.org/#map=17/$lat/$lon" 2>/dev/null
+else
+if [ "$file" == "all" ]; then file=*; fi
+shift
+exiftool -overwrite_original -gpslatitude="$latabs" -gpslatituderef="$latref" -gpslongitude="$lonabs" -gpslongituderef="$lonref" $file
+fi

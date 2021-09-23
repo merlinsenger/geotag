@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exiftool -filename -model -datetimeoriginal -megapixels -filesize -c "%.8f" -gpsposition -imagesize -T $@

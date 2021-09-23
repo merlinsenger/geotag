@@ -1,0 +1,23 @@
+#!/bin/bash
+
+for var in "$@"
+do
+
+pos=$(exiftool -c "%.8f" -gpsposition "$var" | sed 's/.*:.//')
+
+lat=$(echo $pos | cut -d"," -f1)
+lon=$(echo $pos | cut -d"," -f2)
+
+latabs=$(echo $lat | cut -d" " -f1)
+latsign=$(echo $lat | cut -d" " -f2 | sed 's/S/-/' | sed 's/N//')
+lonabs=$(echo $lon | cut -d" " -f1) 
+lonsign=$(echo $lon | cut -d" " -f2 | sed 's/W/-/' | sed 's/E//')
+
+uri="https://nominatim.openstreetmap.org/reverse.php?format=geojson&lat=$latsign$latabs&lon=$lonsign$lonabs&zoom=16"
+
+json=$(curl -s "$uri")
+name=$(echo $json | jq -r ".features[0].properties.display_name")
+
+echo $var: $name
+
+done
