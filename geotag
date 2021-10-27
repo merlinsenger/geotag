@@ -34,7 +34,7 @@ shift
 file="$@"
 
 if [ -z "$file" ]
-then chromium-browser "https://opentopomap.org/#map=17/$lat/$lon" 2>/dev/null
+then firefox "https://opentopomap.org/#map=17/$lat/$lon" 2>/dev/null
 else
 if [ "$file" == "all" ]; then file=*; fi
 shift
